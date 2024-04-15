@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BrillPower.Ducklinq", "src\BrillPower.Ducklinq\BrillPower.Ducklinq.csproj", "{EC1D753E-1E4C-414E-B59B-AF9D792EFB5C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{910E01BB-BC51-410E-BD41-04EAA7C9F324}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrillPower.Ducklinq.Test", "tests\BrillPower.Ducklinq.Test\BrillPower.Ducklinq.Test.csproj", "{C91319ED-E033-4021-9D5F-85DDDF26B344}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EC1D753E-1E4C-414E-B59B-AF9D792EFB5C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC1D753E-1E4C-414E-B59B-AF9D792EFB5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC1D753E-1E4C-414E-B59B-AF9D792EFB5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC1D753E-1E4C-414E-B59B-AF9D792EFB5C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C91319ED-E033-4021-9D5F-85DDDF26B344}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C91319ED-E033-4021-9D5F-85DDDF26B344}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C91319ED-E033-4021-9D5F-85DDDF26B344}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C91319ED-E033-4021-9D5F-85DDDF26B344}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {662FD2F3-5A1B-4225-9A96-C1B35A4666F8}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C91319ED-E033-4021-9D5F-85DDDF26B344} = {910E01BB-BC51-410E-BD41-04EAA7C9F324}
+	EndGlobalSection
+EndGlobal
