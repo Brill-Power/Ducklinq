@@ -25,7 +25,7 @@ public class DuckDbContext
         return new DuckDbQueryable<T>(this);
     }
 
-    internal IEnumerable<T> Execute<T>(string query, IReadOnlyCollection<ParameterReferenceExpression> parameters)
+    public virtual IEnumerable<T> Execute<T>(string query, IReadOnlyCollection<ParameterReferenceExpression> parameters)
     {
         using (DuckDBConnection connection = _connectionFactory())
         {
