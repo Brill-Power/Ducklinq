@@ -5,7 +5,7 @@ namespace BrillPower.Ducklinq.Expressions;
 
 public class DuckDbExpressionVisitor
 {
-    public DuckDbExpression Visit(DuckDbExpression node)
+    public virtual DuckDbExpression Visit(DuckDbExpression node)
     {
         switch (node)
         {
