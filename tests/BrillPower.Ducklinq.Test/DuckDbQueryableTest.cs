@@ -221,7 +221,7 @@ public class DuckDbQueryableTest : IDisposable
         string actualSql = new QueryTranslator().Translate(query.Expression);
         Assert.Equal("SELECT t0.BatteryID, time_bucket('00:10:00'::INTERVAL, t0.Timestamp) AS Timestamp, AVG(t0.Voltage) AS Voltage, AVG(t0.Current) AS Current, MAX(t0.State) AS State, MAX(t0.Error) AS Error " +
                      "FROM batteryData AS t0 WHERE t0.Timestamp BETWEEN $p0 AND $p1 " +
-                     "GROUP BY t0.BatteryID, time_bucket('00:10:00'::INTERVAL, t0.Timestamp)", actualSql);
+                     "GROUP BY time_bucket('00:10:00'::INTERVAL, t0.Timestamp), t0.BatteryID", actualSql);
     }
 
     [Fact]
@@ -251,7 +251,7 @@ public class DuckDbQueryableTest : IDisposable
         string actualSql = new QueryTranslator().Translate(query.Expression);
         Assert.Equal("SELECT t0.BatteryID, time_bucket('00:10:00'::INTERVAL, t0.Timestamp) AS Timestamp, AVG(t0.Voltage) AS Voltage, AVG(t0.Current) AS Current, MAX(t0.State) AS State, MAX(t0.Error) AS Error " +
                      "FROM read_parquet('batteryData/*/*/*/*.parquet', hive_partitioning=1) AS t0 WHERE t0.Timestamp BETWEEN $p0 AND $p1 AND ((t0.year=2023 AND (t0.month=12 AND t0.day=31)) OR (t0.year=2024 AND (t0.month=1 AND t0.day=1))) " +
-                     "GROUP BY t0.BatteryID, time_bucket('00:10:00'::INTERVAL, t0.Timestamp)", actualSql);
+                     "GROUP BY time_bucket('00:10:00'::INTERVAL, t0.Timestamp), t0.BatteryID", actualSql);
     }
 
     [Fact]
@@ -380,7 +380,7 @@ public class DuckDbQueryableTest : IDisposable
             "(" +
             "SELECT t0.BatteryID, time_bucket('00:10:00'::INTERVAL, t0.Timestamp) AS Timestamp, AVG(t0.Voltage) AS Voltage, AVG(t0.Current) AS Current, MAX(t0.State) AS State, MAX(t0.Error) AS Error " +
             "FROM batteryData AS t0 " +
-            "GROUP BY t0.BatteryID, time_bucket('00:10:00'::INTERVAL, t0.Timestamp)" +
+            "GROUP BY time_bucket('00:10:00'::INTERVAL, t0.Timestamp), t0.BatteryID" +
             ") AS t2", actualSql);
     }
 
@@ -586,6 +586,37 @@ public class DuckDbQueryableTest : IDisposable
         Assert.Collection(voltageData, x =>
             {
                 Assert.Equal(1, x.Key);
+                Assert.Equal(1515.15, x.EnergyThroughput);
+            });
+    }
+
+    private class TestGroupByWithMultipleKeysOutput
+    {
+        public int BatteryID { get; set; }
+        public double Voltage { get; set; }
+        public double EnergyThroughput { get; set; }
+    }
+
+    [Fact]
+    public void TestGroupByWithMultipleKeys()
+    {
+        DuckDbContext context = new DuckDbContext("DataSource=:memory:");
+        IQueryable<BatteryDatum> data = context.Get<BatteryDatum>().AsParquet();
+        var query = data.GroupBy(bd => new { bd.BatteryID, bd.Voltage }).Select(g => new TestGroupByWithMultipleKeysOutput()
+        {
+            BatteryID = g.Key.BatteryID,
+            Voltage = g.Key.Voltage,
+            EnergyThroughput = g.Sum(bd => bd.Voltage * bd.Current)
+        });
+
+        Assert.Equal("SELECT t0.BatteryID, t0.Voltage, SUM(t0.Voltage*t0.Current) AS EnergyThroughput " +
+                     "FROM 'batteryData.parquet' AS t0 GROUP BY t0.BatteryID, t0.Voltage", new QueryTranslator().Translate(query.Expression));
+        var voltageData = query.ToList();
+
+        Assert.Collection(voltageData, x =>
+            {
+                Assert.Equal(1, x.BatteryID);
+                Assert.Equal(48.1, x.Voltage);
                 Assert.Equal(1515.15, x.EnergyThroughput);
             });
     }
