@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
@@ -86,13 +87,33 @@ public class QueryTranslator : ExpressionVisitor
             if (expression is ColumnReferenceExpression columnReference &&
                 columnReference.Name == member.Name)
             {
+                var isGroupByKey = argument is MemberExpression
+                {
+                    Expression: MemberExpression { Member.Name: nameof(IGrouping<string, string>.Key) }
+                };
+                //Check if the projection argument matches any of the group by keys by name
+                if (isGroupByKey)
+                {
+                    ImmutableDictionary<string, ColumnReferenceExpression> groupByKeys = _groupingKeys.
+                        Where(item => item != null).
+                        OfType<ColumnReferenceExpression>().
+                        ToArray().ToImmutableDictionary(x => x.Name, x => x);
+
+                    if (groupByKeys.TryGetValue(columnReference.Name, out ColumnReferenceExpression? matchedGroupByKey))
+                    {
+                        projections[i] = matchedGroupByKey;
+                        if (_groupingKeys.TryPeek(out DuckDbExpression? topGroupByKey) && topGroupByKey == matchedGroupByKey)
+                        {
+                            _groupingKeys.Pop();
+                        }
+                        i++;
+                        continue;
+                    }
+                }
                 // check references to GroupBy columns
                 if (_groupingKeys.TryPeek(out DuckDbExpression? key) &&
                     (columnReference.Name == nameof(IGrouping<string, string>.Key) ||
-                    argument is MemberExpression
-                    {
-                        Expression: MemberExpression { Member.Name: nameof(IGrouping<string, string>.Key) }
-                    }))
+                    isGroupByKey))
                 {
                     if (key is ColumnReferenceExpression keyRef && String.Equals(keyRef.Name, columnReference.Name))
                     {
@@ -457,7 +478,7 @@ public class QueryTranslator : ExpressionVisitor
             _groupingKeys.Push(key); // push for use in later projection
         }
 
-        return new SelectExpression(node.Method.GetGenericArguments()[0], null, source, null, [], _groupingKeys, [], null, []);
+        return new SelectExpression(node.Method.GetGenericArguments()[0], null, source, null, [], _groupingKeys.Reverse(), [], null, []);
     }
 
     private DuckDbExpression VisitOrderBy(MethodCallExpression node, bool ascending)
