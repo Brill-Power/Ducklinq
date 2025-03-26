@@ -52,7 +52,7 @@ public class DuckDbQueryableTest : IDisposable
             using (DuckDBAppender appender = connection.CreateAppender("batteryData"))
             {
                 IDuckDBAppenderRow row = appender.CreateRow();
-                row.AppendValue(1)
+                row.AppendValue(1UL)
                     .AppendValue(timestamp)
                     .AppendValue(48.1)
                     .AppendValue(31.5)
@@ -66,7 +66,7 @@ public class DuckDbQueryableTest : IDisposable
             using (DuckDBAppender appender = connection.CreateAppender("moduleData"))
             {
                 IDuckDBAppenderRow row = appender.CreateRow();
-                row.AppendValue(10)
+                row.AppendValue(10UL)
                     .AppendValue(timestamp)
                     .AppendValue(3.25)
                     .AppendValue(10.1)
