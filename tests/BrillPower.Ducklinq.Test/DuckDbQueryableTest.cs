@@ -22,7 +22,7 @@ public class DuckDbQueryableTest : IDisposable
         {
             connection.Open();
 
-            using (DuckDbCommand command = connection.CreateCommand())
+            using (DuckDBCommand command = connection.CreateCommand())
             {
                 command.CommandText = "CREATE TABLE batteryData (batteryId INT NOT NULL, " +
                     "timestamp TIMESTAMP NOT NULL, " +
@@ -36,7 +36,7 @@ public class DuckDbQueryableTest : IDisposable
                 command.ExecuteNonQuery();
             }
 
-            using (DuckDbCommand command = connection.CreateCommand())
+            using (DuckDBCommand command = connection.CreateCommand())
             {
                 command.CommandText = "CREATE TABLE moduleData (moduleId INT NOT NULL, " +
                     "timestamp TIMESTAMP NOT NULL, " +
@@ -51,8 +51,8 @@ public class DuckDbQueryableTest : IDisposable
             DateTime timestamp = DateTime.UtcNow;
             using (DuckDBAppender appender = connection.CreateAppender("batteryData"))
             {
-                DuckDBAppenderRow row = appender.CreateRow();
-                row.AppendValue(1)
+                IDuckDBAppenderRow row = appender.CreateRow();
+                row.AppendValue(1UL)
                     .AppendValue(timestamp)
                     .AppendValue(48.1)
                     .AppendValue(31.5)
@@ -65,8 +65,8 @@ public class DuckDbQueryableTest : IDisposable
 
             using (DuckDBAppender appender = connection.CreateAppender("moduleData"))
             {
-                DuckDBAppenderRow row = appender.CreateRow();
-                row.AppendValue(10)
+                IDuckDBAppenderRow row = appender.CreateRow();
+                row.AppendValue(10UL)
                     .AppendValue(timestamp)
                     .AppendValue(3.25)
                     .AppendValue(10.1)
@@ -75,13 +75,13 @@ public class DuckDbQueryableTest : IDisposable
                     .EndRow();
             }
 
-            using (DuckDbCommand command = connection.CreateCommand())
+            using (DuckDBCommand command = connection.CreateCommand())
             {
                 command.CommandText = "COPY batteryData TO 'batteryData.parquet' (FORMAT PARQUET)";
                 command.ExecuteNonQuery();
             }
 
-            using (DuckDbCommand command = connection.CreateCommand())
+            using (DuckDBCommand command = connection.CreateCommand())
             {
                 command.CommandText = "COPY moduleData TO 'moduleData.parquet' (FORMAT PARQUET)";
                 command.ExecuteNonQuery();
