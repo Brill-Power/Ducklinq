@@ -6,18 +6,19 @@ using DuckDB.NET.Data;
 
 namespace BrillPower.Ducklinq;
 
-public class DuckDbContext
+public class DuckDbContext : IDisposable
 {
-    private readonly Func<DuckDBConnection> _connectionFactory;
+    private readonly DuckDBConnection _connection;
+
+    public DuckDbContext(DuckDBConnection connection)
+    {
+        _connection = connection;
+    }
 
     public DuckDbContext(string connectionString)
     {
-        _connectionFactory = () =>
-        {
-            DuckDBConnection connection = new DuckDBConnection(connectionString);
-            connection.Open();
-            return connection;
-        };
+        _connection = new DuckDBConnection(connectionString);
+        _connection.Open();
     }
 
     public DuckDbQueryable<T> Get<T>()
@@ -27,14 +28,16 @@ public class DuckDbContext
 
     public virtual IEnumerable<T> Execute<T>(string query, IReadOnlyCollection<ParameterReferenceExpression> parameters)
     {
-        using (DuckDBConnection connection = _connectionFactory())
+        DynamicParameters dynamicParameters = new DynamicParameters();
+        foreach (ParameterReferenceExpression parameterReference in parameters)
         {
-            DynamicParameters dynamicParameters = new DynamicParameters();
-            foreach (ParameterReferenceExpression parameterReference in parameters)
-            {
-                dynamicParameters.Add(parameterReference.Name, parameterReference.Value);
-            }
-            return connection.Query<T>(query, dynamicParameters);
+            dynamicParameters.Add(parameterReference.Name, parameterReference.Value);
         }
+        return _connection.Query<T>(query, dynamicParameters);
+    }
+
+    public void Dispose()
+    {
+        _connection.Dispose();
     }
 }
