@@ -17,12 +17,20 @@ public static class QueryableExtensions
         return self.Provider.CreateQuery<T>(new SelectExpression(typeof(T), null, fileName, null));
     }
 
-    public static IQueryable<T> AsPartitioned<T, TPartition>(this DuckDbQueryable<T> self, Expression<Func<T, TPartition>> partitionKeySelector, string path = "")
+    public static IQueryable<T> AsPartitioned<T, TPartition>(this DuckDbQueryable<T> self, Expression<Func<T, TPartition>> partitionKeySelector, string path = "", bool ignoreSchemaMismatches = false)
     {
         string tableName = Table.GetTableName(self.ElementType);
         string partitionPath = GetPath(partitionKeySelector);
         string parquetPath = Path.Combine(path, $"{tableName}/{partitionPath}/*.parquet");
-        return self.Provider.CreateQuery<T>(new SelectExpression(typeof(T), null, $"read_parquet('{parquetPath}', hive_partitioning=1)", partitionKeySelector));
+        List<string> parameters = [
+            $"'{parquetPath}'",
+            "hive_partitioning=1"
+        ];
+        if (ignoreSchemaMismatches)
+        {
+            parameters.Add("union_by_name=True");
+        }
+        return self.Provider.CreateQuery<T>(new SelectExpression(typeof(T), null, $"read_parquet({String.Join(", ", parameters)})", partitionKeySelector));
     }
 
     public static IQueryable<T> Cumulative<T>(this IQueryable<T> self)
