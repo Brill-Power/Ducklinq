@@ -2,6 +2,10 @@
 
 LINQ-to-DuckDb. A LINQ wrapper around [DuckDB.NET](https://github.com/Giorgi/DuckDB.NET) using Dapper for materialisation.
 
+## Installation
+
+Ducklinq is available [on NuGet](https://www.nuget.org/packages/BrillPower.Ducklinq/).
+
 ## Getting Started
 
 The unit tests should give an idea of what is possible, but in brief:
