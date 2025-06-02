@@ -5,6 +5,16 @@
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Authors>Brill Power, Gareth Potter</Authors>
+      <Copyright>Copyright (c) Brill Power 2024-2025</Copyright>
+      <ProjectUrl>https://github.com/Brill-Power/Ducklinq</ProjectUrl>
+      <RepositoryUrl>https://github.com/Brill-Power/Ducklinq.git</RepositoryUrl>
+      <RepositoryType>git</RepositoryType>
+      <Description>LINQ-to-DuckDb</Description>
+      <PackageId>BrillPower.Ducklinq</PackageId>
+      <PackageLicenseExpression>MIT</PackageLicenseExpression>
+      <PackageReadmeFile>README.md</PackageReadmeFile>
+      <PackageTags>DuckDb;Database;LINQ;QueryProvider</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,6 +24,10 @@
 
   <ItemGroup>
     <Folder Include="Schema/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
